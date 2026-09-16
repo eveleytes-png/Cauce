@@ -4,7 +4,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Footer } from "@/components/shared/footer";
 import { Navbar } from "@/components/shared/navbar";
 import { SITE } from "@/constants";
-import { env } from "@/lib/env";
 
 import "./globals.css";
 
@@ -19,10 +18,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
+  metadataBase: new URL("http://localhost:3000"),
   title: {
-    default: env.NEXT_PUBLIC_APP_NAME,
-    template: `%s · ${env.NEXT_PUBLIC_APP_NAME}`,
+    default: "CAUCE",
+    template: "%s · CAUCE",
   },
   description: SITE.description,
 };

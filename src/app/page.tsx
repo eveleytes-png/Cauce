@@ -1,29 +1,30 @@
-import { ArrowRight } from "lucide-react";
+"use client";
 
-import { SITE } from "@/constants";
-import { env } from "@/lib/env";
+import { useMemo, useState } from "react";
+import { Bell, ChevronDown, FileText, Filter, LayoutDashboard, Menu, MoreHorizontal, Package, Plus, Search, Settings, ShoppingBag, Truck, Users, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+const nav = [["Resumen", LayoutDashboard], ["Notas de venta", FileText], ["Clientes", Users], ["Proveedores", Truck], ["Productos", Package]] as const;
+const sales = [
+  ["NV-1048", "Constructora Andina", "12 sep 2024", "Pagada", "$ 1.240.000"],
+  ["NV-1047", "Almacén El Roble", "11 sep 2024", "Pendiente", "$ 486.500"],
+  ["NV-1046", "Obras del Sur SpA", "09 sep 2024", "Pagada", "$ 2.105.200"],
+  ["NV-1045", "Ferretería Central", "08 sep 2024", "Vencida", "$ 328.900"],
+] as const;
+const names = ["Constructora Andina", "Almacén El Roble", "Obras del Sur SpA", "Ferretería Central", "Inversiones Norte"];
+const products = ["Cemento especial 25kg", "Plancha OSB 11mm", "Tubo PVC 110mm", "Malla Acma C-92", "Fijaciones estructurales"];
 
 export default function HomePage() {
-  return (
-    <section className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-20">
-      <p className="text-foreground/70 text-sm font-medium">
-        {env.NEXT_PUBLIC_APP_NAME}
-      </p>
-      <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
-        {SITE.description}
-      </h1>
-      <p className="text-foreground/70 max-w-xl">
-        Next.js 15, App Router, TypeScript estricto y Tailwind CSS v4. Los
-        componentes en <code className="font-mono text-sm">src/app</code> son
-        Server Components por defecto.
-      </p>
-      <a
-        href="https://nextjs.org/docs"
-        className="inline-flex w-fit items-center gap-2 text-sm font-medium underline-offset-4 hover:underline"
-      >
-        Documentación de Next.js
-        <ArrowRight className="size-4" aria-hidden />
-      </a>
-    </section>
-  );
+  const [section, setSection] = useState("Resumen"); const [mobile, setMobile] = useState(false); const [query, setQuery] = useState(""); const [modal, setModal] = useState(false); const [notice, setNotice] = useState("");
+  const filtered = useMemo(() => sales.filter((row) => row.join(" ").toLowerCase().includes(query.toLowerCase())), [query]);
+  const notify = (text: string) => { setNotice(text); setTimeout(() => setNotice(""), 2400); };
+  return <div className="app-shell">
+    <aside className={`sidebar ${mobile ? "sidebar-open" : ""}`}><div className="brand-lockup"><img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo%20y%20robots%20cauce-4HwQLCsYCvmMAklqYUJF0ldX0HbEgl.png" alt="CAUCE" /><span>Gestión simple para crecer</span></div><nav><p className="nav-label">MENÚ PRINCIPAL</p>{nav.map(([label, Icon]) => <button key={label} className={`nav-item ${section === label ? "nav-item-active" : ""}`} onClick={() => { setSection(label); setMobile(false); }}><Icon />{label}</button>)}</nav><div className="sidebar-bottom"><button className="nav-item" onClick={() => notify("Centro de ayuda disponible")}><Settings />Configuración</button><div className="account"><div className="avatar">MP</div><div><strong>María Paz</strong><span>Administradora</span></div><MoreHorizontal /></div></div></aside>
+    {mobile && <button className="mobile-scrim" aria-label="Cerrar menú" onClick={() => setMobile(false)} />}
+    <main className="main-area"><header className="topbar"><button className="mobile-menu" onClick={() => setMobile(true)} aria-label="Abrir menú"><Menu /></button><div className="crumb">Inicio <span>/</span> <b>{section}</b></div><div className="top-actions"><button className="icon-button" onClick={() => notify("No tienes notificaciones nuevas")} aria-label="Notificaciones"><Bell /><i /></button><div className="avatar avatar-small">MP</div><ChevronDown /></div></header><div className="content"><div className="page-heading"><div><p className="kicker">Martes, 17 de septiembre de 2024</p><h1>{section === "Resumen" ? "Hola, María Paz" : section}</h1><p className="subheading">{section === "Resumen" ? "Esto es lo que está pasando con tu negocio hoy." : `Administra tus ${section.toLowerCase()} desde un solo lugar.`}</p></div><Button onClick={() => setModal(true)}><Plus data-icon="inline-start" />{section === "Resumen" ? "Nueva nota de venta" : "Agregar registro"}</Button></div>
+    {section === "Resumen" ? <><div className="metrics-grid">{[["Ventas del mes", "$ 18.420.500", "↑ 12,8% vs. mes anterior"], ["Notas de venta", "48", "6 pendientes de pago"], ["Clientes activos", "126", "↑ 8 nuevos este mes"], ["Productos", "284", "12 con stock bajo"]].map(([a,b,c]) => <div className="metric-card" key={a}><p className="eyebrow">{a}</p><strong>{b}</strong><span className={c?.startsWith("↑") ? "positive" : ""}>{c}</span></div>)}</div><div className="dashboard-grid"><section className="panel chart-panel"><div className="panel-heading"><div><h2>Ventas</h2><p>Ingresos de los últimos 6 meses</p></div><button className="select-button">Este año <ChevronDown /></button></div><div className="chart"><div className="chart-y"><span>$20M</span><span>$15M</span><span>$10M</span><span>$5M</span><span>$0</span></div><div className="chart-area"><div className="grid-lines" /><svg viewBox="0 0 700 210" preserveAspectRatio="none" aria-label="Gráfico de ventas"><defs><linearGradient id="fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#b7e535" stopOpacity=".5" /><stop offset="1" stopColor="#b7e535" stopOpacity="0" /></linearGradient></defs><path d="M0 172 C55 154 80 166 120 145 S188 118 230 135 S295 86 350 106 S415 77 465 91 S535 38 580 55 S650 42 700 18 V210 H0Z" fill="url(#fill)" /><path d="M0 172 C55 154 80 166 120 145 S188 118 230 135 S295 86 350 106 S415 77 465 91 S535 38 580 55 S650 42 700 18" fill="none" stroke="#9bc51e" strokeWidth="3" /></svg><div className="chart-months"><span>abr</span><span>may</span><span>jun</span><span>jul</span><span>ago</span><span>sep</span></div></div></div></section><section className="panel activity-panel"><div className="panel-heading"><div><h2>Actividad reciente</h2><p>Últimas actualizaciones</p></div><button className="text-button" onClick={() => setSection("Notas de venta")}>Ver todo</button></div>{["Nueva nota de venta", "Cliente agregado", "Pago recibido", "Producto actualizado"].map((item, i) => <div className="activity-row" key={item}><span className={`activity-dot dot-${i}`} /><div><strong>{item}</strong><small>{["Constructora Andina · Hace 18 min", "Comercial Las Palmas · Hace 2 h", "Obras del Sur SpA · Hace 4 h", "Plancha OSB 11mm · Ayer"][i]}</small></div><b>{["$ 1.240.000", "Nuevo", "$ 2.105.200", "Stock: 42"][i]}</b></div>)}</section></div><section className="panel table-panel"><div className="panel-heading"><div><h2>Últimas notas de venta</h2><p>Revisa el estado de tus ventas más recientes.</p></div><button className="text-button" onClick={() => setSection("Notas de venta")}>Ver todas <ChevronDown /></button></div><SalesTable rows={sales} /></section></> : <section className="panel table-panel full-list"><div className="list-toolbar"><div className="search-wrap"><Search /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={`Buscar ${section.toLowerCase()}...`} /></div><button className="filter-button"><Filter />Filtros</button></div>{section === "Notas de venta" ? <SalesTable rows={filtered} /> : <SimpleList source={section === "Clientes" ? names : products} />}</section>}</div></main>
+    {modal && <div className="modal-backdrop" onMouseDown={() => setModal(false)}><div className="modal" onMouseDown={(e) => e.stopPropagation()}><div className="modal-header"><div><p className="kicker">Nuevo registro</p><h2>Nueva nota de venta</h2></div><button className="close-button" onClick={() => setModal(false)} aria-label="Cerrar"><X /></button></div><label>Cliente / nombre<input autoFocus placeholder="Escribe para buscar..." /></label><label>Descripción<input placeholder="Detalle del registro" /></label><div className="modal-actions"><Button variant="secondary" onClick={() => setModal(false)}>Cancelar</Button><Button onClick={() => { setModal(false); notify("Registro creado correctamente"); }}>Guardar registro</Button></div></div></div>}{notice && <div className="toast">{notice}</div>}
+  </div>;
 }
+function SalesTable({ rows }: { rows: readonly (readonly string[])[] }) { return <div className="table-scroll"><table><thead><tr><th>Nº nota</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th className="align-right">Total</th><th /></tr></thead><tbody>{rows.map((r) => <tr key={r[0]}><td><strong>{r[0]}</strong></td><td>{r[1]}</td><td>{r[2]}</td><td><span className={`status status-${r[3]?.toLowerCase()}`}>{r[3]}</span></td><td className="align-right"><strong>{r[4]}</strong></td><td><MoreHorizontal /></td></tr>)}</tbody></table></div>; }
+function SimpleList({ source }: { source: string[] }) { return <div className="simple-list">{source.map((item, i) => <div className="simple-row" key={item}><div className="list-icon">{i % 2 ? <Users /> : <ShoppingBag />}</div><div><strong>{item}</strong><span>{i + 12} movimientos este año</span></div><ChevronDown /></div>)}</div>; }
