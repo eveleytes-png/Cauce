@@ -13,11 +13,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.9.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.43.0",
     "next": "15.5.25",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hook-form": "^7.88.0",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.5.4"
   },

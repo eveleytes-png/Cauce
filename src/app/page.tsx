@@ -22,7 +22,14 @@ import {
   X,
 } from "lucide-react";
 
+import { AuthScreen } from "@/components/auth/AuthScreen";
 import { ORDERS } from "@/constants/orders";
+import {
+  clearSession,
+  readSession,
+  writeSession,
+  type AuthSession,
+} from "@/lib/auth-storage";
 import {
   buildChartSeries,
   currentMonthSales,
@@ -288,6 +295,13 @@ export default function HomePage() {
   const [modalState, setModalState] = useState<ModalState>("empty");
   const [importOpen, setImportOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [session, setSession] = useState<AuthSession | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(() => {
+    setSession(readSession());
+    setAuthReady(true);
+  }, []);
 
   const go = (next: Section, statuses?: string[]) => {
     setSection(next);
@@ -397,6 +411,33 @@ export default function HomePage() {
   };
   const openOrder = orders.find((item) => item.id === openOrderId);
 
+  const signOut = () => {
+    clearSession();
+    setSession(null);
+    setMobileOpen(false);
+  };
+
+  if (!authReady) {
+    return (
+      <div className="cauce-app auth-app">
+        <main className="auth-wrap">
+          <p className="muted">Cargando…</p>
+        </main>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <AuthScreen
+        onAuthenticated={(next) => {
+          writeSession(next);
+          setSession(next);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="cauce-app">
       <header className="site-header">
@@ -415,6 +456,12 @@ export default function HomePage() {
               </button>
             ))}
           </nav>
+          <div className="header-session">
+            <span>{session.fullName}</span>
+            <button type="button" className="link-button" onClick={signOut}>
+              Cerrar sesión
+            </button>
+          </div>
           <button className="menu-button" aria-label="Abrir menú" onClick={() => setMobileOpen(true)}>
             <Menu />
           </button>
@@ -442,6 +489,9 @@ export default function HomePage() {
                   {label}
                 </button>
               ))}
+              <button type="button" onClick={signOut}>
+                Cerrar sesión
+              </button>
             </div>
           </>
         )}
